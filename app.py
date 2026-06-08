@@ -1,7 +1,11 @@
 import streamlit as st
-import language_tool_python
+import textstat
 
 st.title("📝 AI Essay Feedback System")
+
+st.write(
+    "Analyze vocabulary, readability, and overall quality of English essays."
+)
 
 essay = st.text_area(
     "Paste your essay here:",
@@ -17,38 +21,42 @@ if st.button("Analyze Essay"):
 
         words = len(essay.split())
 
-        tool = language_tool_python.LanguageTool('en-US')
-
-        matches = tool.check(essay)
+        readability = textstat.flesch_reading_ease(essay)
 
         st.subheader("📊 Essay Statistics")
 
         st.write("Word Count:", words)
 
-        st.subheader("✏ Grammar Feedback")
-
-        if len(matches) == 0:
-            st.success("No major grammar errors found.")
-
-        else:
-
-            st.write(f"Grammar Issues Found: {len(matches)}")
-
-            for match in matches[:10]:
-
-                st.write(f"• {match.message}")
+        st.write(
+            "Readability Score:",
+            round(readability, 2)
+        )
 
         st.subheader("📚 Vocabulary Feedback")
 
         if words < 100:
-            st.write(
-                "Consider using more detailed explanations and richer vocabulary."
+            st.warning(
+                "Consider adding more detailed explanations and richer vocabulary."
             )
+
         elif words < 250:
-            st.write(
-                "Vocabulary range is acceptable but could be expanded."
+            st.info(
+                "Vocabulary range is acceptable but can still be improved."
             )
+
         else:
-            st.write(
+            st.success(
                 "Good vocabulary range and essay length."
+            )
+
+        st.subheader("💡 Overall Feedback")
+
+        if readability > 60:
+            st.success(
+                "The essay is generally easy to read and understand."
+            )
+
+        else:
+            st.warning(
+                "The essay may be difficult to read. Consider simplifying some sentences."
             )
